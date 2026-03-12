@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission: Jayanti's 24th Orbit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --space-navy: #070b1f;
+      --space-navy-soft: #0e1435;
+      --galactic-purple: #5c2e9c;
+      --krishna-gold: #f0c15b;
+      --lotus-pink: #f2b4d7;
+      --telemetry-cyan: #5ee6ff;
+      --temple-glow: #ffdca8;
+      --text: #e8edff;
+      --muted: #a8b6e6;
+      --grid-line: rgba(94, 230, 255, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, #18224b 0%, transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(92, 46, 156, 0.7), transparent 40%),
+        linear-gradient(180deg, var(--space-navy) 0%, #050713 100%);
+      overflow-x: hidden;
+    }
+
+    .stars, .nebula {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .stars {
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.8), transparent),
+        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,.6), transparent),
+        radial-gradient(2px 2px at 50% 80%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 85% 10%, rgba(255,255,255,.85), transparent),
+        radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,.75), transparent);
+      background-size: 320px 320px;
+      animation: drift 55s linear infinite;
+    }
+    .nebula {
+      background: radial-gradient(circle at 60% 70%, rgba(240,193,91,.1), transparent 35%);
+      filter: blur(40px);
+      opacity: .6;
+    }
+
+    .mission-path {
+      position: fixed;
+      right: clamp(8px, 2vw, 24px);
+      top: 12vh;
+      width: 8px;
+      height: 76vh;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(94,230,255,.25), rgba(240,193,91,.25));
+      overflow: hidden;
+      z-index: 20;
+    }
+    .mission-progress {
+      width: 100%;
+      height: 0;
+      background: linear-gradient(180deg, var(--telemetry-cyan), var(--krishna-gold));
+      transition: height .15s linear;
+      box-shadow: 0 0 16px rgba(94,230,255,.6);
+    }
+
+    .launch-wrapper { position: relative; z-index: 2; }
+
+    section {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 8vh clamp(1rem, 3vw, 3rem);
+      position: relative;
+    }
+
+    .panel {
+      width: min(1100px, 100%);
+      border: 1px solid rgba(94, 230, 255, 0.22);
+      background:
+        linear-gradient(120deg, rgba(10,18,52,.82), rgba(20,8,36,.78)),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, var(--grid-line) 40px);
+      border-radius: 28px;
+      padding: clamp(1.25rem, 3vw, 2.5rem);
+      box-shadow: 0 24px 80px rgba(0,0,0,.45), inset 0 0 30px rgba(94,230,255,.08);
+      backdrop-filter: blur(8px);
+      transform: translateY(calc(var(--scroll-shift, 0px) * -0.15));
+      transition: transform .2s linear;
+    }
+
+    h1, h2 {
+      font-family: Orbitron, sans-serif;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: clamp(1.8rem, 5vw, 3.4rem); }
+    h2 { font-size: clamp(1.25rem, 3vw, 2rem); margin-bottom: 1rem; }
+    .accent { color: var(--krishna-gold); }
+    .tag {
+      color: var(--telemetry-cyan);
+      font-size: .82rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: .7rem;
+      display: inline-block;
+    }
+    .lead { color: var(--muted); line-height: 1.75; max-width: 70ch; margin-top: 1rem; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .rocket {
+      width: 190px;
+      aspect-ratio: 1;
+      margin-inline: auto;
+      filter: drop-shadow(0 8px 26px rgba(94,230,255,.45));
+      animation: rocketFloat 2.8s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+    .btn {
+      margin-top: 1.6rem;
+      border: 1px solid rgba(240,193,91,.45);
+      color: var(--space-navy);
+      background: linear-gradient(110deg, var(--krishna-gold), #ffe8a7);
+      padding: .9rem 1.4rem;
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,193,91,.35); }
+
+    .timeline { margin-top: 1.3rem; display: grid; gap: 1rem; }
+    .log-item {
+      border-left: 2px solid rgba(94,230,255,.4);
+      padding: .9rem 1rem;
+      background: rgba(255,255,255,.02);
+      border-radius: 0 12px 12px 0;
+    }
+    .log-item strong { color: var(--temple-glow); }
+
+    .route {
+      margin-top: 1.2rem;
+      border: 1px solid rgba(94,230,255,.3);
+      border-radius: 16px;
+      padding: 1rem;
+      background: rgba(6, 12, 35, 0.66);
+    }
+    .route svg { width: 100%; height: 190px; }
+    .path-line {
+      stroke-dasharray: 700;
+      stroke-dashoffset: 700;
+      animation: drawPath 3.2s ease forwards;
+    }
+
+    .radar {
+      margin-top: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      align-items: center;
+    }
+    .wheel-wrap { perspective: 900px; display: grid; place-items: center; }
+    .prayer-wheel {
+      width: 170px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid rgba(240,193,91,.6);
+      background: conic-gradient(from 0deg, rgba(240,193,91,.2), rgba(94,230,255,.25), rgba(240,193,91,.2));
+      display: grid;
+      place-items: center;
+      font-family: Cormorant Garamond, serif;
+      font-size: 1.1rem;
+      color: var(--temple-glow);
+      animation: spin 11s linear infinite;
+      box-shadow: inset 0 0 25px rgba(240,193,91,.24), 0 0 30px rgba(94,230,255,.2);
+    }
+
+    .blips { list-style: none; display: grid; gap: .75rem; }
+    .blips li {
+      padding: .65rem .8rem;
+      border: 1px solid rgba(94,230,255,.27);
+      border-radius: 10px;
+      background: rgba(8,15,43,.65);
+      display: flex;
+      justify-content: space-between;
+      font-size: .95rem;
+    }
+
+    .letter {
+      margin-top: 1rem;
+      border: 1px solid rgba(240,193,91,.34);
+      border-radius: 15px;
+      padding: 1rem;
+      background: linear-gradient(180deg, rgba(255,220,168,.08), rgba(8,12,24,.5));
+      line-height: 1.8;
+      color: #ffe7ca;
+      font-family: Cormorant Garamond, serif;
+      font-size: 1.15rem;
+    }
+
+    .shayari {
+      margin-top: 1rem;
+      padding-left: .8rem;
+      border-left: 3px solid rgba(240,193,91,.55);
+      color: #ffe2bf;
+      font-style: italic;
+    }
+
+    @keyframes rocketFloat { 50% { transform: translateY(-10px) rotateY(14deg); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes drawPath { to { stroke-dashoffset: 0; } }
+    @keyframes drift { to { transform: translateY(-320px); } }
+
+    @media (max-width: 860px) {
+      .hero-grid, .radar { grid-template-columns: 1fr; }
+      .mission-path { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="nebula"></div>
+  <aside class="mission-path" aria-hidden="true"><div class="mission-progress" id="missionProgress"></div></aside>
+
+  <main class="launch-wrapper" id="top">
+    <section id="slide1">
+      <article class="panel">
+        <div class="hero-grid">
+          <div>
+            <span class="tag">Mission Control Dashboard</span>
+            <h1>Mission: <span class="accent">Jayanti's 24th Orbit</span></h1>
+            <p class="lead">Telemetry confirms a rare launch profile: Aerospace precision, devotional focus, and a heart calibrated by bhakti. Commander Madhav requests immediate ignition sequence.</p>
+            <button class="btn" id="igniteBtn">Ignite Mission</button>
+          </div>
+          <div>
+            <svg class="rocket" viewBox="0 0 200 200" role="img" aria-label="3D inspired rocket icon">
+              <defs>
+                <linearGradient id="rocketBody" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#e6eefc" />
+                  <stop offset="100%" stop-color="#7ac8ff" />
+                </linearGradient>
+              </defs>
+              <path d="M100 18 C126 52,126 108,100 160 C74 108,74 52,100 18" fill="url(#rocketBody)"/>
+              <circle cx="100" cy="76" r="13" fill="#2f6fff"/>
+              <path d="M82 112 L64 138 L88 130" fill="#7b4fd1"/>
+              <path d="M118 112 L136 138 L112 130" fill="#7b4fd1"/>
+              <path d="M100 161 L84 188 L100 178 L116 188 Z" fill="#ffbe3d"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="slide2">
+      <article class="panel">
+        <span class="tag">Ground Control Logbook</span>
+        <h2>Ground Control: <span class="accent">Mumbai</span></h2>
+        <div class="timeline">
+          <div class="log-item">📍 <strong>The Shopping Marathon</strong> — endurance trial complete after 11 stores, 3 kulfi breaks, and one perfect smile telemetry spike.</div>
+          <div class="log-item">📍 <strong>The Rickshaw Standoff</strong> — tactical negotiation achieved with combined charm and stubborn engineering logic.</div>
+          <div class="log-item">📍 <strong>The Miracle Momos</strong> — hunger emergency resolved by divine lane navigation and momo grace at T-minus 4 minutes.</div>
+        </div>
+      </article>
+    </section>
+
+    <section id="slide3">
+      <article class="panel">
+        <span class="tag">Exosphere Transition</span>
+        <h2>6,700 KM: Gravity can't hold what the soul has already launched.</h2>
+        <p class="lead">Trajectory lock: Nala Sopara/Mumbai → Germany. Cross-continental distance is measurable; spiritual nearness is not.</p>
+        <div class="route">
+          <svg viewBox="0 0 900 250" aria-label="Flight path from Mumbai to Germany">
+            <circle cx="130" cy="180" r="7" fill="#5ee6ff"></circle>
+            <text x="70" y="210" fill="#b9cffb" font-size="18">Mumbai</text>
+            <circle cx="750" cy="70" r="7" fill="#f0c15b"></circle>
+            <text x="700" y="50" fill="#ffe2a9" font-size="18">Germany</text>
+            <path class="path-line" d="M140 172 C280 110, 520 210, 740 78" fill="none" stroke="#5ee6ff" stroke-width="4" stroke-linecap="round"></path>
+            <path d="M742 78 l-16 -6 l6 14" fill="#5ee6ff"></path>
+          </svg>
+        </div>
+      </article>
+    </section>
+
+    <section id="slide4">
+      <article class="panel">
+        <span class="tag">Spiritual Radar</span>
+        <h2>Devotion Radar: <span class="accent">Vibe Tracking Active</span></h2>
+        <div class="radar">
+          <div class="wheel-wrap">
+            <div class="prayer-wheel" id="prayerWheel">Hare Krishna</div>
+          </div>
+          <ul class="blips">
+            <li><span>5 Years of ISKCON</span><strong>Signal: Divine</strong></li>
+            <li><span>Aerospace Brilliance</span><strong>Signal: Stellar</strong></li>
+            <li><span>Madhav's Patience</span><strong>Signal: Infinite</strong></li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="slide5">
+      <article class="panel">
+        <span class="tag">Vaikuntha Arrival</span>
+        <h2>Final Destination: <span class="accent">Sunset in Germany</span></h2>
+        <p class="lead">Mission report complete. The next phase is timeless: shared dharma, shared laughter, and a love that travels beyond maps.</p>
+        <div class="letter">
+          <strong>Letter from the Future</strong><br/>
+          Dear Jayanti,<br/>
+          When we replay this mission years from now, I will still call you my brightest constellation—equal parts precision and prayer. The world will know you as an engineer of skies; I will know you as the soul that made every home sacred.
+          <div class="shayari">"Radha aur Krishna sharir se door the, par prem ki dhadkan mein kabhi juda na hue.<br/>Jaise tum aur main—do coordinates, ek hi anant aakash."</div>
+          <div style="margin-top:.8rem">Hamesha Tumhara,<br/>Madhav</div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
